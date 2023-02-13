@@ -24,19 +24,20 @@ void setup() {
   pinMode(DIR2_R, OUTPUT);
   pinMode(PWM2_R, OUTPUT);
 }
-
+//max motor power is 255
+int8_t motorPower = 50;
 void loop() {
   //drive forwards
-  driveLR(100, 100);
+  driveLR(motorPower, motorPower);
   delay(2000);
   //drive backwards
-  driveLR(-100, -100);
+  driveLR(-motorPower, -motorPower);
   delay(2000);
   //turn left
-  driveLR(-100, 100);
+  driveLR(-motorPower, motorPower);
   delay(2000);
   //turn right
-  driveLR(100,-100);
+  driveLR(motorPower,-motorPower);
   delay(2000);
   //stop
   driveLR(0,0);
