@@ -23,10 +23,10 @@
 #define WHEEL_RADIUS_M 0.06
 
 //Encoder Objects for each motor
-Encoder_Buffer EncoderFL(CS3);
-Encoder_Buffer EncoderBL(CS4);
-Encoder_Buffer EncoderFR(CS2);
-Encoder_Buffer EncoderBR(CS1);
+Encoder_Buffer EncoderFL(CS1);
+Encoder_Buffer EncoderBL(CS2);
+Encoder_Buffer EncoderFR(CS3); 
+Encoder_Buffer EncoderBR(CS4);
 
 //Encoder Counts
 long encFLCount = 0;
@@ -57,10 +57,12 @@ void loop() {
   //If we have waited long enough since the last encoder read
   if (millis() - lastEncoderRead > encoderReadDelay){
   //read all the encoders
+  //note that the front right and back right encoders are flipped
+  //this is to maintain movement forward as positive for both sides
   encFLCount = EncoderFL.readEncoder();
   encBLCount = EncoderBL.readEncoder();
-  encFRCount = EncoderFR.readEncoder();
-  encBRCount = EncoderBR.readEncoder();
+  encFRCount = -EncoderFR.readEncoder();
+  encBRCount = -EncoderBR.readEncoder();
   
   printEncoderCounts();
   //printEncoderRadians();
