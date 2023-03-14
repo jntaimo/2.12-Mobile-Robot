@@ -15,9 +15,7 @@
 //Pulses per revolution of the motor
 //Differs based on gear ratio
 //For the 312 RPM Motor 
-#define MOTOR_PPR 537.7
-//The encoder reads in 4x mode, so it gets quadruple resolution
-#define ENC_PPR MOTOR_PPR*4
+#define ENC_PPR 537.7
 
 //Diameter is 120mm converted to meters
 #define WHEEL_RADIUS_M 0.06
@@ -34,7 +32,10 @@ long encBLCount = 0;
 long encFRCount = 0;
 long encBRCount = 0;
 
+
 void printEncoderCounts();
+void printEncoderRadians();
+void printEncoderDistance();
 void clearEncoders();
 
 void setup() {
@@ -54,22 +55,31 @@ unsigned long encoderReadDelay = 200;
 unsigned long lastEncoderRead = 0;
 
 void loop() {
-  //If we have waited long enough since the last encoder read
-  if (millis() - lastEncoderRead > encoderReadDelay){
+  //check to see if anything changed
+
   //read all the encoders
   //note that the front right and back right encoders are flipped
   //this is to maintain movement forward as positive for both sides
-  encFLCount = EncoderFL.readEncoder();
-  encBLCount = EncoderBL.readEncoder();
-  encFRCount = -EncoderFR.readEncoder();
-  encBRCount = -EncoderBR.readEncoder();
-  
-  printEncoderCounts();
-  //printEncoderRadians();
-  //printEncoderDistance();
+  long newEncFLCount = EncoderFL.readEncoder();
+  long newEncBLCount = EncoderBL.readEncoder();
+  long newEncFRCount = -EncoderFR.readEncoder();
+  long newEncBRCount = -EncoderBR.readEncoder();
 
-  //reset the encoder time delay
-  lastEncoderRead = millis();
+  //assess whether ANY of the values changed
+  bool changed  = (newEncFLCount != encFLCount) | (newEncBLCount != encBLCount)
+                  | (newEncFRCount != encFRCount) | (newEncBRCount != encBRCount);
+
+  
+  if (changed){
+    //store the new values if they changed
+    encFLCount = newEncFLCount;
+    encBLCount = newEncBLCount;
+    encFRCount = newEncFRCount;
+    encBRCount = newEncBRCount;
+    //only print them if they changed
+    //printEncoderCounts();
+    // printEncoderRadians();
+    printEncoderDistance();
   }
 
 }
@@ -84,9 +94,9 @@ void printEncoderCounts(){
   //the '%d' is replaced by the encoder count to the right of the comma
   //See here for more info
   //https://www.programiz.com/cpp-programming/library-function/cstdio/printf
-  Serial.printf("FL Count: %d\n", encFLCount);
-  Serial.printf("BL Count: %d\n", encBLCount);
-  Serial.printf("FR Count: %d\n", encFRCount);
+  Serial.printf("FL Count: %d\t", encFLCount);
+  Serial.printf("BL Count: %d\t", encBLCount);
+  Serial.printf("FR Count: %d\t", encFRCount);
   Serial.printf("BR Count: %d\n", encBRCount);
 }
 
@@ -96,9 +106,9 @@ void printEncoderRadians(){
   //Converts the encoder counts to radians
   //Count/PPR gives number of rotations
   //multiply by 2pi since there are 2pi radians per rotation
-  Serial.printf("FL Radians: %f\n", encFLCount*2*PI/ENC_PPR);
-  Serial.printf("BL Radians: %f\n", encBLCount*2*PI/ENC_PPR);
-  Serial.printf("FR Radians: %f\n", encFRCount*2*PI/ENC_PPR);
+  Serial.printf("FL Radians: %f\t", encFLCount*2*PI/ENC_PPR);
+  Serial.printf("BL Radians: %f\t", encBLCount*2*PI/ENC_PPR);
+  Serial.printf("FR Radians: %f\t", encFRCount*2*PI/ENC_PPR);
   Serial.printf("BR Radians: %f\n", encBRCount*2*PI/ENC_PPR);
 
 }
@@ -106,10 +116,10 @@ void printEncoderRadians(){
 //Prints the distance the robot traverses using the stock wheels
 void printEncoderDistance(){
   //S = R*theta
-  Serial.printf("FL Radians: %f\n", encFLCount*2*PI*WHEEL_RADIUS_M/ENC_PPR);
-  Serial.printf("BL Radians: %f\n", encBLCount*2*PI*WHEEL_RADIUS_M/ENC_PPR);
-  Serial.printf("FR Radians: %f\n", encFRCount*2*PI*WHEEL_RADIUS_M/ENC_PPR);
-  Serial.printf("BR Radians: %f\n", encBRCount*2*PI*WHEEL_RADIUS_M/ENC_PPR);
+  Serial.printf("FL m: %f\t", encFLCount*2*PI*WHEEL_RADIUS_M/ENC_PPR);
+  Serial.printf("BL m: %f\t", encBLCount*2*PI*WHEEL_RADIUS_M/ENC_PPR);
+  Serial.printf("FR m: %f\t", encFRCount*2*PI*WHEEL_RADIUS_M/ENC_PPR);
+  Serial.printf("BR m: %f\n", encBRCount*2*PI*WHEEL_RADIUS_M/ENC_PPR);
 
 }
 
