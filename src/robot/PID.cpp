@@ -46,7 +46,7 @@ float errorFR = 0;
 float errorBR = 0;
 
 float kp = 10;
-float ki = 0;
+float ki = 0.01;
 float kd = 0;
 
 unsigned long prevPIDTimeMicros = 0; //in microseconds
@@ -63,8 +63,8 @@ float runPID(float error,float last_error, float kp, float ki, float kd, float &
 void setup(){
     Serial.begin(115200);
     encoderSetup();
-    //desiredVelFL = 0.2/WHEEL_RADIUS_M;
-    //desiredVelFR = 0.2/WHEEL_RADIUS_M;
+    driveSetup();
+    desiredVelFL = 1;
 }
 
 void loop(){
@@ -78,11 +78,13 @@ void loop(){
         
         voltageFL = runPID(newErrorFL, errorFL, kp, ki, kd, sumErrorFL, maxSumError, pidDelayMicros*1e6);
         voltageBL = runPID(newErrorBL, errorBL, kp, ki, kd, sumErrorBL, maxSumError, pidDelayMicros*1e6);
+        driveVolts(voltageFL, 0, voltageFR, 0);
     }
     
     if (millis() - prevPrintTimeMillis > printDelayMillis){
         prevPrintTimeMillis = millis();
-        Serial.println(voltageFL);
+        Serial.printf("%f\t%f\t%f\t%f\n", voltageFL, filtVelFL, desiredVelFL, sumErrorFL);
+
     }
 }
 
@@ -118,7 +120,7 @@ void updateVelocity(){
 //sum_error will be update to maintain the cumulative error sum
 //this requires tracking of variables outside of the PID function
 float runPID(float error,float last_error, float kp, float ki, float kd, float &sumError, float maxSumError, float loopTime){
-    sumError += ki*error*loopTime;
+    sumError += error*loopTime;
     //avoid integral windum
     sumError = constrain(sumError, -maxSumError, maxSumError);
     //standard PID configuration
