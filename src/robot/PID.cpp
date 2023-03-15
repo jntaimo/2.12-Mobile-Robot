@@ -25,7 +25,7 @@ float sumErrorFL = 0;
 float sumErrorBL = 0;
 float sumErrorFR = 0;
 float sumErrorBR = 0;
-float maxSumError = 200;
+
 
 //desired velocity setpoints in rad/s
 float desiredVelFL = 0;
@@ -45,9 +45,14 @@ float errorBL = 0;
 float errorFR = 0;
 float errorBR = 0;
 
-float kp = 10;
-float ki = 0.01;
+float kp = 20;
+float ki = 20;
 float kd = 0;
+
+//allows the intergral control to max contribution at the max drive voltage
+//prevents integral windum
+float maxSumError = DRIVE_VOLTAGE/ki;
+
 
 unsigned long prevPIDTimeMicros = 0; //in microseconds
 //how long to wait before updating PID parameters
@@ -76,9 +81,9 @@ void loop(){
         float newErrorFR = desiredVelFR - filtVelFR;
         float newErrorBR = desiredVelBR - filtVelBR;
         
-        voltageFL = runPID(newErrorFL, errorFL, kp, ki, kd, sumErrorFL, maxSumError, pidDelayMicros*1e6);
-        voltageBL = runPID(newErrorBL, errorBL, kp, ki, kd, sumErrorBL, maxSumError, pidDelayMicros*1e6);
-        driveVolts(voltageFL, 0, voltageFR, 0);
+        voltageFL = runPID(newErrorFL, errorFL, kp, ki, kd, sumErrorFL, maxSumError, pidDelayMicros*1e-6);
+        voltageBL = runPID(newErrorBL, errorBL, kp, ki, kd, sumErrorBL, maxSumError, pidDelayMicros*1e-6);
+        driveVolts(voltageFL, 0, 0, 0);
     }
     
     if (millis() - prevPrintTimeMillis > printDelayMillis){

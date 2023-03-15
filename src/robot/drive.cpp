@@ -9,7 +9,7 @@
 #define PWM1_R 15
 #define DIR2_R 12
 #define PWM2_R 27
-#define DRIVE_VOLTAGE 12
+
 
 #define PWM1_L_CHANNEL 0
 #define PWM1_R_CHANNEL 1
