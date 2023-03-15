@@ -51,8 +51,6 @@ void setup() {
 }
 //Delay (in milliseconds) between consecutive reads of the encoders
 //Prevents constantly
-unsigned long encoderReadDelay = 200;
-unsigned long lastEncoderRead = 0;
 
 void loop() {
   //check to see if anything changed

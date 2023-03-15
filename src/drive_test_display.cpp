@@ -15,14 +15,14 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
 
-#define DIR1_L 12
-#define PWM1_L 27
-#define DIR2_L 33
-#define PWM2_L 15
-#define DIR1_R A0
-#define PWM1_R A1
-#define DIR2_R 32
-#define PWM2_R 14
+#define DIR1_L 32
+#define PWM1_L 14
+#define DIR2_L A0
+#define PWM2_L A1
+#define DIR1_R 33
+#define PWM1_R 15
+#define DIR2_R 12
+#define PWM2_R 27
 #define MAX_DRIVE 255
 
 
@@ -134,10 +134,10 @@ void drive(int16_t frontLeft, int16_t backLeft , int16_t frontRight, int16_t bac
   backRight = constrain(backRight, -MAX_DRIVE, MAX_DRIVE);
 
   //store wheel directions based on if input is negative
-  bool dirFL = frontLeft > 0;
-  bool dirBL = backLeft < 0;
-  bool dirFR = frontRight < 0;
-  bool dirBR = backRight > 0;
+  bool dirFL = frontLeft < 0;
+  bool dirBL = backLeft > 0;
+  bool dirFR = frontRight > 0;
+  bool dirBR = backRight < 0;
 
   //drive motor
   digitalWrite(DIR1_L,dirFL);
