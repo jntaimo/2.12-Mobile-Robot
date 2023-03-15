@@ -1,26 +1,33 @@
 #include <Arduino.h>
 #include "encoder.h"
 
+//instantaneous velocity of each wheel in radians per second
+float velFL = 0;
+float velBL = 0;
+float velFR = 0;
+float velBR = 0;
 
-//filtered velocity of each wheel in radians
+//filtered velocity of each wheel in radians per second
 float filtVelFL = 0;
 float filtVelBL = 0;
 float filtVelFR = 0;
 float filtVelBR = 0;
 
+
 //scaling factor for each new reading
 //if alpha = 0, each new reading is not even considered
 //if alpha = 1, each new reading is the only thing considered
 //lower values of alpha smooth the filtered velocity more, but delay the signal
-float alpha = 0.1;
+float alpha = 0.05;
 
 unsigned long prevPIDTimeMicros = 0; //in microseconds
 //how long to wait before updating PID parameters
-unsigned long pidDelayMicros = 5000; //in microseconds
+unsigned long pidDelayMicros = 10000; //in microseconds
 
 unsigned long prevPrintTimeMillis = 0;
-unsigned long printDelayMillis = 100;
+unsigned long printDelayMillis = 50;
 
+void updateVelocity();
 
 void setup(){
     Serial.begin(115200);
@@ -30,19 +37,37 @@ void setup(){
 void loop(){
     if (micros() - prevPIDTimeMicros > pidDelayMicros){
         prevPIDTimeMicros = micros();
-        readEncoders(); 
+        updateVelocity();
     }
     
     if (millis() - prevPrintTimeMillis > printDelayMillis){
         prevPrintTimeMillis = millis();
-        Serial.println(encFLRad);
+        Serial.println(filtVelFL);
     }
 }
 
 //updates the filtered velocity values
-//should be run as frequently as possible
+//should be run every pidDelayMicros microseconds
 void updateVelocity(){
-
+    //store current positions to reference
+    float lastRadFL = encFLRad;
+    float lastRadBL = encBLRad;
+    float lastRadFR = encFRRad;
+    float lastRadBR = encBRRad;
+    //get new positions
+    readEncoders();
+    //convert time from microseconds to seconds
+    float dt = pidDelayMicros*1e-6;
+    //get (change in position)/time
+    velFL = (encFLRad - lastRadFL)/dt;
+    velBL = (encBLRad - lastRadBL)/dt;
+    velFR = (encFRRad - lastRadFR)/dt;
+    velBR = (encBRRad - lastRadBR)/dt;
+    //use first order alpha based filter to get filtered velocities
+    filtVelFL = alpha*velFL + (1-alpha)*filtVelFR;
+    filtVelBL = alpha*velBL + (1-alpha)*filtVelBL;
+    filtVelFR = alpha*velFR + (1-alpha)*filtVelFR;
+    filtVelBR = alpha*velBR + (1-alpha)*filtVelBR;
 }
 
 
