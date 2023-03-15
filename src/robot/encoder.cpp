@@ -17,8 +17,7 @@
 //For the 312 RPM Motor 
 #define ENC_PPR 537.7
 
-//Diameter is 120mm converted to meters
-#define WHEEL_RADIUS_M 0.06
+
 
 //Encoder Objects for each motor
 Encoder_Buffer EncoderFL(CS1);

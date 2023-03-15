@@ -1,3 +1,6 @@
+//Diameter is 120mm converted to meters
+#define WHEEL_RADIUS_M 0.06
+
 extern long encFLCount;
 extern long encBLCount;
 extern long encFRCount;
