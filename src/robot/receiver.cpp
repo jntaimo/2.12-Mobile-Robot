@@ -7,13 +7,12 @@ Data is sent using the ESP-NOW Protocol
 #include <esp_now.h>
 #include <WiFi.h>
 #include "receiver.h"
-
+struct_message joyData;
 esp_now_peer_info_t peerInfo;
 
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&joyData, incomingData, sizeof(joyData));
-  Serial.println("Got Data");
 }
 //0C:DC:7E:CC:6B:B8
 void wirelessSetup(void){

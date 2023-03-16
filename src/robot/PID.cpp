@@ -72,6 +72,7 @@ void setup(){
     Serial.begin(115200);
     encoderSetup();
     driveSetup();
+    wirelessSetup();
     desiredVelBL = 1;
     desiredVelBR = 1;
 }
@@ -96,12 +97,17 @@ void loop(){
         
         //only drive the back motors
         driveVolts(0, voltageBL, 0, voltageBR);
+        //driveVolts(12, 0, 0, 0);
     }
     
     if (millis() - prevPrintTimeMillis > printDelayMillis){
         prevPrintTimeMillis = millis();
-        Serial.printf("%f\t%f\t%f\t%f\n", voltageBL, filtVelBL, desiredVelBL, sumErrorBL);
 
+        //print Back left wheel data for debugging
+        // Serial.printf("v: %f filtvel: %f desiredvel: %f sumerror: %f\n", voltageBL, filtVelBL, desiredVelBL, sumErrorBL);
+        //Serial.println(filtVelFL);
+        //uncomment to print current joystick readings
+        //Serial.printf("JoyX: %d JoyY %d\n", joyData.joyX, joyData.joyY);
     }
 
 }
