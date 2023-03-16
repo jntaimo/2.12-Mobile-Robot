@@ -46,13 +46,13 @@ float errorFR = 0;
 float errorBR = 0;
 
 //PID Constants
-float kp = 20;
+float kp = 5;
 float ki = 20;
 float kd = 0;
 
 //allows the intergral control to max contribution at the max drive voltage
 //prevents integral windum
-float maxSumError = DRIVE_VOLTAGE/ki;
+float maxSumError = (DRIVE_VOLTAGE/ki)/2;
 
 
 unsigned long prevPIDTimeMicros = 0; //in microseconds
@@ -64,6 +64,8 @@ unsigned long printDelayMillis = 50;
 
 //function prototypes
 void updateVelocity();
+void getSetPointDriveTest(float angVel);
+void getSetPointJoystick();
 float runPID(float error,float last_error, float kp, float ki, float kd, float &sumError, float maxSumError, float loopTime);
 
 void setup(){
@@ -76,42 +78,77 @@ void setup(){
 
 
 void loop(){
-    // if (micros() - prevPIDTimeMicros > pidDelayMicros){
-    //     prevPIDTimeMicros = micros();
-    //     updateVelocity();
+    if (micros() - prevPIDTimeMicros > pidDelayMicros){
+        prevPIDTimeMicros = micros();
+        updateVelocity();
+        getSetPointDriveTest(5);
+        //getSetPointJoystick();
+        float newErrorFL = desiredVelFL - filtVelFL;
+        float newErrorBL = desiredVelBL - filtVelBL;
+        float newErrorFR = desiredVelFR - filtVelFR;
+        float newErrorBR = desiredVelBR - filtVelBR;
 
-    //     float newErrorFL = desiredVelFL - filtVelFL;
-    //     float newErrorBL = desiredVelBL - filtVelBL;
-    //     float newErrorFR = desiredVelFR - filtVelFR;
-    //     float newErrorBR = desiredVelBR - filtVelBR;
+        //get control signal by running PID on all for motors
+        voltageFL = runPID(newErrorFL, errorFL, kp, ki, kd, sumErrorFL, maxSumError, pidDelayMicros*1e-6);      
+        voltageBL = runPID(newErrorBL, errorBL, kp, ki, kd, sumErrorBL, maxSumError, pidDelayMicros*1e-6);
+        voltageFR = runPID(newErrorFR, errorFR, kp, ki, kd, sumErrorFR, maxSumError, pidDelayMicros*1e-6);            
+        voltageBR = runPID(newErrorBR, errorBR, kp, ki, kd, sumErrorBR, maxSumError, pidDelayMicros*1e-6);
         
-    //     voltageBL = runPID(newErrorBL, errorBL, kp, ki, kd, sumErrorBL, maxSumError, pidDelayMicros*1e-6);
-    //     voltageBR = runPID(newErrorBR, errorBR, kp, ki, kd, sumErrorBR, maxSumError, pidDelayMicros*1e-6);
-    //     driveVolts(0, 5, 0, 0);
-    // }
+        //only drive the back motors
+        driveVolts(0, voltageBL, 0, voltageBR);
+    }
     
-    // if (millis() - prevPrintTimeMillis > printDelayMillis){
-    //     prevPrintTimeMillis = millis();
-    //     Serial.printf("%f\t%f\t%f\t%f\n", voltageBL, filtVelBL, desiredVelBL, sumErrorBL);
+    if (millis() - prevPrintTimeMillis > printDelayMillis){
+        prevPrintTimeMillis = millis();
+        Serial.printf("%f\t%f\t%f\t%f\n", voltageBL, filtVelBL, desiredVelBL, sumErrorBL);
 
-    // }
-    Serial.println("Front Left");
-    driveVolts(5, 0,0,0);
-    delay(4000);
-    Serial.println("Front Right");
-    driveVolts(0, 0,5,0);
-    delay(4000);
-    Serial.println("Back Left");
-    driveVolts(0, 5,0,0);
-    delay(4000);
-    Serial.println("Back Right");
-    driveVolts(0, 0,0,5);
-    delay(4000);
+    }
 
-    
 }
 
 
+void getSetPointDriveTest(float angVel){
+    //make a 20 second loop
+    unsigned long time = (millis()/1000)%20;
+    if (0 <= time && time < 4){
+        //forward
+        //Serial.println("Forward");
+        desiredVelFL = angVel;
+        desiredVelBL = angVel;
+        desiredVelFR = angVel;
+        desiredVelBR = angVel;
+    } else if (4 <= time && time < 8) {
+        //backwards
+        //Serial.println("Backwards");
+        desiredVelFL = -angVel;
+        desiredVelBL = -angVel;
+        desiredVelFR = -angVel;
+        desiredVelBR = -angVel;       
+    } else if (8 <= time && time < 12) {
+        //left
+        //Serial.println("Left");
+        desiredVelFL = -angVel;
+        desiredVelBL = -angVel;
+        desiredVelFR = angVel;
+        desiredVelBR = angVel;
+    } else if (12 <= time && time < 16){
+        //right
+        //Serial.println("Right");
+        desiredVelFL = angVel;
+        desiredVelBL = angVel;
+        desiredVelFR = -angVel;
+        desiredVelBR = -angVel;
+
+    } else if (16 <= time  && time < 20){
+        //stop
+        //Serial.println("Stop");
+        desiredVelFL = 0;
+        desiredVelBL = 0;
+        desiredVelFR = 0;
+        desiredVelBR = 0;
+    }
+
+}
 //updates the wheel setpoint based on the current joystick values
 void getSetPointJoystick(){
 
