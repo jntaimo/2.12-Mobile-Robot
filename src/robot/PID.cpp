@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "encoder.h"
 #include "drive.h"
-
+#include "receiver.h"
 //instantaneous velocity of each wheel in radians per second
 float velFL = 0;
 float velBL = 0;
@@ -45,6 +45,7 @@ float errorBL = 0;
 float errorFR = 0;
 float errorBR = 0;
 
+//PID Constants
 float kp = 20;
 float ki = 20;
 float kd = 0;
@@ -69,31 +70,53 @@ void setup(){
     Serial.begin(115200);
     encoderSetup();
     driveSetup();
-    desiredVelFL = 1;
+    desiredVelBL = 1;
+    desiredVelBR = 1;
 }
+
 
 void loop(){
-    if (micros() - prevPIDTimeMicros > pidDelayMicros){
-        prevPIDTimeMicros = micros();
-        updateVelocity();
-        float newErrorFL = desiredVelFL - filtVelFL;
-        float newErrorBL = desiredVelBL - filtVelBL;
-        float newErrorFR = desiredVelFR - filtVelFR;
-        float newErrorBR = desiredVelBR - filtVelBR;
-        
-        voltageFL = runPID(newErrorFL, errorFL, kp, ki, kd, sumErrorFL, maxSumError, pidDelayMicros*1e-6);
-        voltageBL = runPID(newErrorBL, errorBL, kp, ki, kd, sumErrorBL, maxSumError, pidDelayMicros*1e-6);
-        driveVolts(voltageFL, 0, 0, 0);
-    }
-    
-    if (millis() - prevPrintTimeMillis > printDelayMillis){
-        prevPrintTimeMillis = millis();
-        Serial.printf("%f\t%f\t%f\t%f\n", voltageFL, filtVelFL, desiredVelFL, sumErrorFL);
+    // if (micros() - prevPIDTimeMicros > pidDelayMicros){
+    //     prevPIDTimeMicros = micros();
+    //     updateVelocity();
 
-    }
+    //     float newErrorFL = desiredVelFL - filtVelFL;
+    //     float newErrorBL = desiredVelBL - filtVelBL;
+    //     float newErrorFR = desiredVelFR - filtVelFR;
+    //     float newErrorBR = desiredVelBR - filtVelBR;
+        
+    //     voltageBL = runPID(newErrorBL, errorBL, kp, ki, kd, sumErrorBL, maxSumError, pidDelayMicros*1e-6);
+    //     voltageBR = runPID(newErrorBR, errorBR, kp, ki, kd, sumErrorBR, maxSumError, pidDelayMicros*1e-6);
+    //     driveVolts(0, 5, 0, 0);
+    // }
+    
+    // if (millis() - prevPrintTimeMillis > printDelayMillis){
+    //     prevPrintTimeMillis = millis();
+    //     Serial.printf("%f\t%f\t%f\t%f\n", voltageBL, filtVelBL, desiredVelBL, sumErrorBL);
+
+    // }
+    Serial.println("Front Left");
+    driveVolts(5, 0,0,0);
+    delay(4000);
+    Serial.println("Front Right");
+    driveVolts(0, 0,5,0);
+    delay(4000);
+    Serial.println("Back Left");
+    driveVolts(0, 5,0,0);
+    delay(4000);
+    Serial.println("Back Right");
+    driveVolts(0, 0,0,5);
+    delay(4000);
+
+    
 }
 
 
+//updates the wheel setpoint based on the current joystick values
+void getSetPointJoystick(){
+
+
+}
 //updates the filtered velocity values
 //should be run every pidDelayMicros microseconds
 void updateVelocity(){

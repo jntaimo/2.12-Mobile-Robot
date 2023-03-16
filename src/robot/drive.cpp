@@ -11,6 +11,7 @@
 #define PWM2_R 27
 
 
+
 #define PWM1_L_CHANNEL 0
 #define PWM1_R_CHANNEL 1
 #define PWM2_L_CHANNEL 2
@@ -38,8 +39,8 @@ void driveSetup() {
   ledcSetup(3, PWM_FREQ, PWM_RESOLUTION);
   
   ledcAttachPin(PWM1_L, PWM1_L_CHANNEL);
-  ledcAttachPin(PWM2_L, PWM1_R_CHANNEL);
-  ledcAttachPin(PWM1_R, PWM2_L_CHANNEL);
+  ledcAttachPin(PWM2_L, PWM2_L_CHANNEL);
+  ledcAttachPin(PWM1_R, PWM1_R_CHANNEL);
   ledcAttachPin(PWM2_R, PWM2_R_CHANNEL);
 
 }
