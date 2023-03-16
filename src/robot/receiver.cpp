@@ -1,30 +1,21 @@
 /*
 This code receives data from the remote
+
+Data is sent using the ESP-NOW Protocol
 */
 #include <Arduino.h>
 #include <esp_now.h>
 #include <WiFi.h>
 #include "receiver.h"
 
-typedef struct struct_message {
-  uint16_t joyX;
-  uint16_t joyY;
-  bool rightPressed;
-  bool downPressed;
-  bool leftPressed;
-  bool upPressed;
-  bool selPressed;
-} struct_message;
-
-struct_message joyData;
-
 esp_now_peer_info_t peerInfo;
 
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&joyData, incomingData, sizeof(joyData));
+  Serial.println("Got Data");
 }
-
+//0C:DC:7E:CC:6B:B8
 void wirelessSetup(void){
 
 // Set device as a Wi-Fi Station
