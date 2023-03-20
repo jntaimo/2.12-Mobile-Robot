@@ -19,7 +19,7 @@ uint8_t broadcastAddress[] = {0x0C, 0xDC, 0x7E, 0xCC, 0x6B, 0xB8};
 
 // Structure example to send data
 // Must match the receiver structure
-typedef struct struct_message {
+typedef struct joy_message {
   uint16_t joyX;
   uint16_t joyY;
   bool rightPressed;
@@ -27,9 +27,9 @@ typedef struct struct_message {
   bool leftPressed;
   bool upPressed;
   bool selPressed;
-} struct_message;
+} joy_message;
 
-struct_message joyData;
+joy_message joyData;
 
 esp_now_peer_info_t peerInfo;
 // callback when data is sent

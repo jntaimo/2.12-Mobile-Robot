@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include "encoder.h"
 #include "drive.h"
-#include "receiver.h"
+#include "PID.h"
+
 //instantaneous velocity of each wheel in radians per second
 float velFL = 0;
 float velBL = 0;
@@ -26,7 +27,6 @@ float sumErrorBL = 0;
 float sumErrorFR = 0;
 float sumErrorBR = 0;
 
-
 //desired velocity setpoints in rad/s
 float desiredVelFL = 0;
 float desiredVelBL = 0;
@@ -39,7 +39,7 @@ float voltageBL = 0;
 float voltageFR = 0;
 float voltageBR = 0;
 
-//error readings
+//error reading
 float errorFL = 0;
 float errorBL = 0;
 float errorFR = 0;
@@ -50,68 +50,15 @@ float kp = 5;
 float ki = 20;
 float kd = 0;
 
-//allows the intergral control to max contribution at the max drive voltage
-//prevents integral windum
-float maxSumError = (DRIVE_VOLTAGE/ki)/2;
+float lastRadFL = 0;
+float lastRadBL = 0;
+float lastRadFR = 0;
+float lastRadBR = 0;
 
-
-unsigned long prevPIDTimeMicros = 0; //in microseconds
-//how long to wait before updating PID parameters
-unsigned long pidDelayMicros = 10000; //in microseconds
-
-unsigned long prevPrintTimeMillis = 0;
-unsigned long printDelayMillis = 50;
-
-//function prototypes
-void updateVelocity();
-void getSetPointDriveTest(float angVel);
-void getSetPointJoystick();
-float runPID(float error,float last_error, float kp, float ki, float kd, float &sumError, float maxSumError, float loopTime);
-
-void setup(){
-    Serial.begin(115200);
-    encoderSetup();
-    driveSetup();
-    wirelessSetup();
-    desiredVelBL = 1;
-    desiredVelBR = 1;
-}
-
-
-void loop(){
-    if (micros() - prevPIDTimeMicros > pidDelayMicros){
-        prevPIDTimeMicros = micros();
-        updateVelocity();
-        getSetPointDriveTest(5);
-        //getSetPointJoystick();
-        float newErrorFL = desiredVelFL - filtVelFL;
-        float newErrorBL = desiredVelBL - filtVelBL;
-        float newErrorFR = desiredVelFR - filtVelFR;
-        float newErrorBR = desiredVelBR - filtVelBR;
-
-        //get control signal by running PID on all for motors
-        voltageFL = runPID(newErrorFL, errorFL, kp, ki, kd, sumErrorFL, maxSumError, pidDelayMicros*1e-6);      
-        voltageBL = runPID(newErrorBL, errorBL, kp, ki, kd, sumErrorBL, maxSumError, pidDelayMicros*1e-6);
-        voltageFR = runPID(newErrorFR, errorFR, kp, ki, kd, sumErrorFR, maxSumError, pidDelayMicros*1e-6);            
-        voltageBR = runPID(newErrorBR, errorBR, kp, ki, kd, sumErrorBR, maxSumError, pidDelayMicros*1e-6);
-        
-        //only drive the back motors
-        driveVolts(0, voltageBL, 0, voltageBR);
-        //driveVolts(12, 0, 0, 0);
-    }
-    
-    if (millis() - prevPrintTimeMillis > printDelayMillis){
-        prevPrintTimeMillis = millis();
-
-        //print Back left wheel data for debugging
-        // Serial.printf("v: %f filtvel: %f desiredvel: %f sumerror: %f\n", voltageBL, filtVelBL, desiredVelBL, sumErrorBL);
-        //Serial.println(filtVelFL);
-        //uncomment to print current joystick readings
-        //Serial.printf("JoyX: %d JoyY %d\n", joyData.joyX, joyData.joyY);
-    }
-
-}
-
+float dRadFL = 0;
+float dRadBL = 0;
+float dRadFR = 0;
+float dRadBR = 0;
 
 void getSetPointDriveTest(float angVel){
     //make a 20 second loop
@@ -162,17 +109,15 @@ void getSetPointJoystick(){
 
 }
 //updates the filtered velocity values
-//should be run every pidDelayMicros microseconds
-void updateVelocity(){
+//dt is the time in seconds since the last update
+void updateVelocity(float dt){
     //store current positions to reference
-    float lastRadFL = encFLRad;
-    float lastRadBL = encBLRad;
-    float lastRadFR = encFRRad;
-    float lastRadBR = encBRRad;
+    lastRadFL = encFLRad;
+    lastRadBL = encBLRad;
+    lastRadFR = encFRRad;
+    lastRadBR = encBRRad;
     //get new positions
     readEncoders();
-    //convert time from microseconds to seconds
-    float dt = pidDelayMicros*1e-6;
     //get (change in position)/time
     velFL = (encFLRad - lastRadFL)/dt;
     velBL = (encBLRad - lastRadBL)/dt;

@@ -6,8 +6,8 @@ Data is sent using the ESP-NOW Protocol
 #include <Arduino.h>
 #include <esp_now.h>
 #include <WiFi.h>
-#include "receiver.h"
-struct_message joyData;
+#include "wireless.h"
+joy_message joyData;
 esp_now_peer_info_t peerInfo;
 
 

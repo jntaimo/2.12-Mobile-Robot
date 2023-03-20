@@ -86,6 +86,8 @@ void drive(float frontLeft, float backLeft , float frontRight, float backRight){
   //if we increase resolution then the max pwm value increases
   uint maxPWM = pow(2,PWM_RESOLUTION) -1;
 
+  //write pwm to the motors
+  //similar to analogwrite but uses ESP32 specific hardware
   ledcWrite(PWM1_L_CHANNEL, abs(frontLeft)*maxPWM);
   ledcWrite(PWM2_L_CHANNEL, abs(backLeft)*maxPWM);
   ledcWrite(PWM1_R_CHANNEL, abs(frontRight)*maxPWM);
