@@ -94,13 +94,13 @@ void loop(){
 
 }
 
-//sets the desired velocity based on desired velocity vel in m/
+//sets the desired velocity based on desired velocity vel in m/s
 //and k curvature in 1/m representing 1/(radius of curvature)
 void setDesiredVel(float vel, float k){
     //TODO convert the velocity and k curvature to new values for desiredVelBL and desiredVelBR
-    desiredVelBL = vel - k*b*vel;
+    desiredVelBL = (vel - k*b*vel)/r;
     desiredVelFL = desiredVelBL;
-    desiredVelBR = 2*vel - desiredVelBL;
+    desiredVelBR = (2*vel - desiredVelBL)/r;
     desiredVelFR = desiredVelBR;
 }
 
@@ -114,15 +114,15 @@ void getSetPointTrajectory(){
     //based on odemetry conditions
     if (pathDistance <= 1.0){
         //STRAIGHT LINE FORWARD
-        vel = 4;
+        vel = 0.2;
         k = 0;
     } else if (pathDistance > 1 && pathDistance < (1+0.25*PI)){
         //TURN IN SEMICIRCLE
-        vel = 2;
+        vel = 0.2;
         k = 1/0.25;
     } else if (pathDistance > (1+ 0.25*PI) && pathDistance < (2 + 0.25*PI)){
         //STRAIGHT LINE BACK
-        vel = 2;
+        vel = 0.2;
         k = 0;
     } else {
         //STOP
