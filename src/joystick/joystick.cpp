@@ -157,8 +157,13 @@ bool readJoystick(){
     bool newLeftPressed = !(buttons & (1 << BUTTON_LEFT));
     bool newUpPressed = !(buttons & (1 << BUTTON_UP));
     bool newSelPressed = ! (buttons & (1 << BUTTON_SEL));
-    //If a button was pressed, show that there was a new reading
-    if (rightPressed || downPressed || leftPressed || upPressed || selPressed){
+
+    //If a button value changed, show that there was a new reading
+    if (rightPressed != newRightPressed || 
+        downPressed != newDownPressed || 
+        leftPressed != newLeftPressed || 
+        upPressed != newUpPressed || 
+        selPressed != newSelPressed){
         newReading = true;
     }
 
