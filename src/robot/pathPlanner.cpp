@@ -64,7 +64,7 @@ void loop(){
         sendOdometry();
 
         //uncomment the desired method for updating the PI setpoint 
-            //getSetPointTrajectory();
+        getSetPointTrajectory();
         //getSetPointDriveTest();
         //getSetPointJoystick();
 
@@ -114,15 +114,15 @@ void getSetPointTrajectory(){
     //based on odemetry conditions
     if (pathDistance <= 1.0){
         //STRAIGHT LINE FORWARD
-        vel = 0.2;
+        vel = 4;
         k = 0;
     } else if (pathDistance > 1 && pathDistance < (1+0.25*PI)){
         //TURN IN SEMICIRCLE
-        vel = 0.2;
+        vel = 2;
         k = 1/0.25;
     } else if (pathDistance > (1+ 0.25*PI) && pathDistance < (2 + 0.25*PI)){
         //STRAIGHT LINE BACK
-        vel = 0.2;
+        vel = 2;
         k = 0;
     } else {
         //STOP
