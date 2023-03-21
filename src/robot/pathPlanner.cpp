@@ -59,15 +59,12 @@ void loop(){
         //just use the back left and back right encoders to calculate trajectory
         updateRobotPose(dPhiBL, dPhiBR);
 
-        //print out the values over the serial port
-        printOdometry();
-
         //sends odometry to the remote
         updateOdometry();
         sendOdometry();
-        //uncomment the desired method for updating the PI setpoint
 
-        //getSetPointTrajectory();
+        //uncomment the desired method for updating the PI setpoint 
+            //getSetPointTrajectory();
         //getSetPointDriveTest();
         //getSetPointJoystick();
 
@@ -87,16 +84,10 @@ void loop(){
         driveVolts(0, voltageBL, 0, voltageBR);
     }
     
-
     //put print statements here
     if (millis() - prevPrintTimeMillis > printDelayMillis){
         prevPrintTimeMillis = millis();
-
-        //print Back left wheel data for debugging
-        //Serial.printf("v: %f filtvel: %f desiredvel: %f sumerror: %f\n", voltageBL, filtVelBL, desiredVelBL, sumErrorBL);
-        //Serial.println(filtVelFL);
-        //uncomment to print current joystick readings
-        //Serial.printf("JoyX: %d JoyY %d\n", joyData.joyX, joyData.joyY);
+        printOdometry();
     }
 
 }
@@ -166,5 +157,5 @@ void updateOdometry(){
 }
 //prints currecnt odometry to be read into MATLAB
 void printOdometry(){
-
+    Serial.printf("%.2f\t%.2f\t%.2f\t%.2f\n", odom_data.millis/1000.0, odom_data.x, odom_data.y, odom_data.theta);
 }
