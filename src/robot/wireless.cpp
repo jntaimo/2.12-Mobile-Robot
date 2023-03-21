@@ -13,7 +13,7 @@ joy_message joyData;
 esp_now_peer_info_t peerInfo;
 
 //replace this address with the address of the remote 
-uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+uint8_t broadcastAddress[] = {0x7C, 0x87, 0xCE, 0xF4, 0x8C, 0xF0};
 
 // callback when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {

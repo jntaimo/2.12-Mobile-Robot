@@ -25,7 +25,8 @@ uint8_t broadcastAddress[] = {0x0C, 0xDC, 0x7E, 0xCC, 0x6B, 0xB8};
 joy_message joyData;
 
 odometry_message odom_data;
-
+//flag to see if we have new data
+bool freshOdomData = false;
 esp_now_peer_info_t peerInfo;
 // callback when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
@@ -37,6 +38,11 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
       //Serial.println("Failed");
     }
 
+}
+
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  memcpy(&odom_data, incomingData, sizeof(odom_data));
+  freshOdomData = true;
 }
 
 bool readJoystick();
@@ -63,8 +69,9 @@ void setup(void){
     return;
   }
 
-  // Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet
+  //Tell the microcontroller which functions to call when
+  //data is sent or received
+  esp_now_register_recv_cb(OnDataRecv);
   esp_now_register_send_cb(OnDataSent);
   
   // Register peer
@@ -84,9 +91,8 @@ void setup(void){
   ss.begin(0x49);
   ss.pinModeBulk(button_mask, INPUT_PULLUP);
   ss.setGPIOInterrupts(button_mask, 1);    
-
-
 }
+
 //minimum time between sending data to the robot
 long sendDataDelay = 50; //Millis
 long lastSendData = 0;
@@ -102,9 +108,12 @@ void loop(){
       lastSendData = millis();
     }
 
-    if (millis() - lastPrintData > printDataDelay){
+    //only print data if a new reading came in
+    if (freshOdomData && millis() - lastPrintData > printDataDelay){
       printOdometrySerial();
       lastPrintData = millis();
+      //wait for the next bit of fresh data
+      freshOdomData = false;
     }
 
 
