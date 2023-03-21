@@ -17,6 +17,8 @@ uint32_t button_mask = (1 << BUTTON_RIGHT) | (1 << BUTTON_DOWN) |
 #include <esp_now.h>
 #include <WiFi.h>
 #include "wireless.h"
+
+//TODO set address to robot mac adress
 uint8_t broadcastAddress[] = {0x0C, 0xDC, 0x7E, 0xCC, 0x6B, 0xB8};
 
 // Structure example to send data
@@ -148,20 +150,22 @@ bool readJoystick(){
         last_x = x;
         last_y = y;
     }    
+
     uint32_t buttons = ss.digitalReadBulk(button_mask);
-    rightPressed = !(buttons & (1 << BUTTON_RIGHT));
-    downPressed = !(buttons & (1 << BUTTON_DOWN));
-    leftPressed = !(buttons & (1 << BUTTON_LEFT));
-    upPressed = !(buttons & (1 << BUTTON_UP));
-    selPressed = ! (buttons & (1 << BUTTON_SEL));
+    bool newRightPressed = !(buttons & (1 << BUTTON_RIGHT));
+    bool newDownPressed = !(buttons & (1 << BUTTON_DOWN));
+    bool newLeftPressed = !(buttons & (1 << BUTTON_LEFT));
+    bool newUpPressed = !(buttons & (1 << BUTTON_UP));
+    bool newSelPressed = ! (buttons & (1 << BUTTON_SEL));
     //If a button was pressed, show that there was a new reading
     if (rightPressed || downPressed || leftPressed || upPressed || selPressed){
         newReading = true;
     }
+
     return newReading;
 }
 
 //Prints odometry data to be read by matlab
 void printOdometrySerial(){
-  Serial.printf("%.2f\t%.2f\t%.2f\t%.2f\n", odom_data.millis/1000.0, odom_data.x, odom_data.y, odom_data.theta);
+  Serial.printf("%.4f\t%.4f\t%.4f\t%.4f\t%.4f\n", odom_data.millis/1000.0, odom_data.x, odom_data.y, odom_data.theta, odom_data.pathDistance);
 }

@@ -12,7 +12,7 @@ joy_message joyData;
 
 esp_now_peer_info_t peerInfo;
 
-//replace this address with the address of the remote 
+//TODO replace this address with the address of the remote 
 uint8_t broadcastAddress[] = {0x7C, 0x87, 0xCE, 0xF4, 0x8C, 0xF0};
 
 // callback when data is sent
@@ -24,7 +24,7 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&joyData, incomingData, sizeof(joyData));
 }
-//0C:DC:7E:CC:6B:B8
+
 void wirelessSetup(void){
 
 // Set device as a Wi-Fi Station

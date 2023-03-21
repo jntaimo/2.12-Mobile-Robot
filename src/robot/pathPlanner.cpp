@@ -3,11 +3,10 @@
 #include "drive.h"
 #include "wireless.h"
 #include "PID.h"
-
-//TODO wheel radius in meters
+//wheel radius in meters
 #define r 0.06
-//TODO wheel distance
-#define b 0.5
+//distance from back wheel to center in meters
+#define b 0.2
 
 //holds the odometry data to be sent to the microcontroller
 odometry_message odom_data;
@@ -100,7 +99,7 @@ void setDesiredVel(float vel, float k){
     //TODO convert the velocity and k curvature to new values for desiredVelBL and desiredVelBR
     desiredVelBL = (vel - k*b*vel)/r;
     desiredVelFL = desiredVelBL;
-    desiredVelBR = (2*vel - desiredVelBL)/r;
+    desiredVelBR = 2*vel/r - desiredVelBL;
     desiredVelFR = desiredVelBR;
 }
 
@@ -162,5 +161,5 @@ void updateOdometry(){
 //prints current odometry to be read into MATLAB
 void printOdometry(){
     //convert the time to seconds
-    Serial.printf("%.2f\t%.4f\t%.4f\t%.4f\n", odom_data.millis/1000.0, odom_data.x, odom_data.y, odom_data.theta);
+    Serial.printf("%.2f\t%.4f\t%.4f\t%.4f\t%.4f\n", odom_data.millis/1000.0, odom_data.x, odom_data.y, odom_data.theta, odom_data.pathDistance);
 }
