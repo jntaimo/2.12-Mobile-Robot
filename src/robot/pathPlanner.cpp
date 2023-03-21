@@ -83,11 +83,13 @@ void loop(){
         //only drive the back motors
         driveVolts(0, voltageBL, 0, voltageBR);
     }
-    
+
     //put print statements here
     if (millis() - prevPrintTimeMillis > printDelayMillis){
         prevPrintTimeMillis = millis();
         printOdometry();
+        //Serial.printf("Left Vel: %.2f Right Vel %.2f\n", filtVelBL, filtVelBR);
+        //Serial.printf("dPhiBL: %.4f dPhiBR %.4f\n", dPhiBL, dPhiBR);
     }
 
 }
@@ -144,6 +146,7 @@ void updateRobotPose(float dPhiL, float dPhiR){
     y += dy;
     //TODO update the pathDistance
     pathDistance += sqrt(dx*dx + dy*dy);
+    //Serial.printf("x: %.2f y: %.2f\n", x, y);
 }
 
 //stores all the the latest odometry data into the odometry struct
@@ -152,10 +155,12 @@ void updateOdometry(){
     odom_data.pathDistance = pathDistance;
     odom_data.x = x;
     odom_data.y = y;
+    odom_data.theta = theta;
     odom_data.velL = filtVelBL;
     odom_data.velR = filtVelBR;
 }
-//prints currecnt odometry to be read into MATLAB
+//prints current odometry to be read into MATLAB
 void printOdometry(){
-    Serial.printf("%.2f\t%.2f\t%.2f\t%.2f\n", odom_data.millis/1000.0, odom_data.x, odom_data.y, odom_data.theta);
+    //convert the time to seconds
+    Serial.printf("%.2f\t%.4f\t%.4f\t%.4f\n", odom_data.millis/1000.0, odom_data.x, odom_data.y, odom_data.theta);
 }

@@ -64,13 +64,13 @@ void wirelessSetup(void){
   joyData.selPressed = false;
 
   //default the odometry values
-  odom_data.millis = 0;
-  odom_data.pathDistance = 0;
-  odom_data.x = 0;
-  odom_data.y = 0;
-  odom_data.theta = 0;
-  odom_data.velL = 0;
-  odom_data.velR = 0;
+  // odom_data.millis = 0;
+  // odom_data.pathDistance = 0;
+  // odom_data.x = 5;
+  // odom_data.y = 0;
+  // odom_data.theta = 0;
+  // odom_data.velL = 0;
+  // odom_data.velR = 0;
 }
 
 //sends the currently stored odometry data to the remote

@@ -55,10 +55,6 @@ float lastRadBL = 0;
 float lastRadFR = 0;
 float lastRadBR = 0;
 
-float dRadFL = 0;
-float dRadBL = 0;
-float dRadFR = 0;
-float dRadBR = 0;
 
 void getSetPointDriveTest(float angVel){
     //make a 20 second loop
@@ -118,11 +114,17 @@ void updateVelocity(float dt){
     lastRadBR = encBRRad;
     //get new positions
     readEncoders();
-    //get (change in position)/time
-    velFL = (encFLRad - lastRadFL)/dt;
-    velBL = (encBLRad - lastRadBL)/dt;
-    velFR = (encFRRad - lastRadFR)/dt;
-    velBR = (encBRRad - lastRadBR)/dt;
+    //store the change in angle
+    dPhiFL = encFLRad - lastRadFL;
+    dPhiBL = encBLRad - lastRadBL;
+    dPhiFR = encFRRad - lastRadFR;
+    dPhiBR = encBRRad - lastRadBR;   
+
+    //get (change in angle)/time
+    velFL = dPhiFL/dt;
+    velBL = dPhiBL/dt;
+    velFR = dPhiFR/dt;
+    velBR = dPhiBR/dt;
     //use first order alpha based filter to get filtered velocities
     filtVelFL = alpha*velFL + (1-alpha)*filtVelFR;
     filtVelBL = alpha*velBL + (1-alpha)*filtVelBL;
