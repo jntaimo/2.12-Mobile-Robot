@@ -19,6 +19,10 @@ typedef struct odometry_message {
   float x;
   float y;
   float theta;
+  float velL;
+  float velR;
 } odometry_message;
 
 extern odometry_message odom_data;
+
+bool sendOdometry();

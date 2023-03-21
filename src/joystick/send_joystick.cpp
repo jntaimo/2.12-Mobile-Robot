@@ -3,6 +3,7 @@
 //Joystick setup
 #include "Adafruit_seesaw.h"
 
+
 Adafruit_seesaw ss;
 
 #define BUTTON_RIGHT 6
@@ -15,21 +16,15 @@ uint32_t button_mask = (1 << BUTTON_RIGHT) | (1 << BUTTON_DOWN) |
 //ESP-NOW SETUP
 #include <esp_now.h>
 #include <WiFi.h>
+#include "wireless.h"
 uint8_t broadcastAddress[] = {0x0C, 0xDC, 0x7E, 0xCC, 0x6B, 0xB8};
 
 // Structure example to send data
 // Must match the receiver structure
-typedef struct joy_message {
-  uint16_t joyX;
-  uint16_t joyY;
-  bool rightPressed;
-  bool downPressed;
-  bool leftPressed;
-  bool upPressed;
-  bool selPressed;
-} joy_message;
 
 joy_message joyData;
+
+odometry_message odom_data;
 
 esp_now_peer_info_t peerInfo;
 // callback when data is sent
@@ -37,15 +32,16 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
     bool success = status == ESP_NOW_SEND_SUCCESS ;
     if (success) {
-      Serial.printf("Sent x:%d y:%d\n", joyData.joyX, joyData.joyY);
+      //Serial.printf("Sent x:%d y:%d\n", joyData.joyX, joyData.joyY);
     } else {
-      Serial.println("Failed");
+      //Serial.println("Failed");
     }
 
 }
 
 bool readJoystick();
 void sendJoystick();
+void printOdometrySerial();
 
 //Joystick tracking variables
 int last_x = 0, last_y = 0;
@@ -91,17 +87,27 @@ void setup(void){
 
 
 }
-//minimum time between sending data
+//minimum time between sending data to the robot
 long sendDataDelay = 50; //Millis
 long lastSendData = 0;
+
+//minimum time between sending data over serial
+long printDataDelay = 20;
+long lastPrintData = 0;
 
 void loop(){
     //Send data when the joystick is ready
     if (readJoystick() && millis()-lastSendData > sendDataDelay){
-        sendJoystick();
-        
-        lastSendData = millis();
+      sendJoystick();    
+      lastSendData = millis();
     }
+
+    if (millis() - lastPrintData > printDataDelay){
+      printOdometrySerial();
+      lastPrintData = millis();
+    }
+
+
 }
 
 //Sends the joystick readings to the broadcast address
@@ -144,4 +150,9 @@ bool readJoystick(){
         newReading = true;
     }
     return newReading;
+}
+
+//Prints odometry data to be read by matlab
+void printOdometrySerial(){
+  Serial.printf("%.2f\t%.2f\t%.2f\t%.2f\n", odom_data.millis/1000.0, odom_data.x, odom_data.y, odom_data.theta);
 }

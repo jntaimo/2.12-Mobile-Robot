@@ -4,12 +4,13 @@
 #include "wireless.h"
 #include "PID.h"
 
-
-
 //TODO wheel radius in meters
 #define r 0.06
 //TODO wheel distance
 #define b 0.5
+
+//holds the odometry data to be sent to the microcontroller
+odometry_message odom_data;
 
 float pathDistance = 0;
 //x and y position of the robot in meters
@@ -36,10 +37,12 @@ unsigned long printDelayMillis = 50;
 void setDesiredVel(float vel, float k);
 void updateRobotPose(float dPhiL, float dPhiR);
 void getSetPointTrajectory();
+void updateOdometry();
 void printOdometry();
-void sendOdometry();
+
 
 void setup(){
+    Serial.begin(115200);
     encoderSetup();
     driveSetup();
     wirelessSetup();
@@ -60,8 +63,8 @@ void loop(){
         printOdometry();
 
         //sends odometry to the remote
+        updateOdometry();
         sendOdometry();
-
         //uncomment the desired method for updating the PI setpoint
 
         //getSetPointTrajectory();
@@ -152,12 +155,16 @@ void updateRobotPose(float dPhiL, float dPhiR){
     pathDistance += sqrt(dx*dx + dy*dy);
 }
 
+//stores all the the latest odometry data into the odometry struct
+void updateOdometry(){
+    odom_data.millis = millis();
+    odom_data.pathDistance = pathDistance;
+    odom_data.x = x;
+    odom_data.y = y;
+    odom_data.velL = filtVelBL;
+    odom_data.velR = filtVelBR;
+}
 //prints currecnt odometry to be read into MATLAB
 void printOdometry(){
-
-}
-
-//sends odometry data to the remote
-void sendOdometry(){
 
 }
